@@ -32,6 +32,15 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
                                     Dashboard
                                 </NavLink>
+                                <NavLink :href="route('weather.index')" :active="route().current('weather.index')">
+                                    🌤️ Ilm
+                                </NavLink>
+                                <NavLink :href="route('map.index')" :active="route().current('map.index')">
+                                    🗺️ Kaart
+                                </NavLink>
+                                <NavLink :href="route('blog.index')" :active="route().current('blog.*')">
+                                    ✍️ Blogi
+                                </NavLink>
                             </div>
                         </div>
 
@@ -114,6 +123,15 @@ const showingNavigationDropdown = ref(false);
                     <div class="pt-2 pb-3 space-y-1">
                         <ResponsiveNavLink :href="route('dashboard')" :active="route().current('dashboard')">
                             Dashboard
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('weather.index')" :active="route().current('weather.index')">
+                            🌤️ Ilm
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('map.index')" :active="route().current('map.index')">
+                            🗺️ Kaart
+                        </ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('blog.index')" :active="route().current('blog.*')">
+                            ✍️ Blogi
                         </ResponsiveNavLink>
                     </div>
 
