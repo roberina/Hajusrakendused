@@ -50,7 +50,7 @@ function windDir(deg) {
 
         <div class="ilm-wrap">
 
-            <!-- Search -->
+            
             <div class="ilm-container">
                 <div class="search-card">
                     <form @submit.prevent="search" class="search-form">
@@ -69,13 +69,13 @@ function windDir(deg) {
                     </form>
                 </div>
 
-                <!-- Error -->
+                
                 <div v-if="error" class="err-box">⚠️ {{ error }}</div>
 
-                <!-- Weather -->
+                
                 <div v-if="weather">
 
-                    <!-- Hero card -->
+                    
                     <div class="hero-card" :style="{ background: getTheme(weather.weather[0].icon).bg }">
                         <!-- Left -->
                         <div class="hero-left">
@@ -89,17 +89,17 @@ function windDir(deg) {
                             <div class="hero-desc">
                                 {{ getTheme(weather.weather[0].icon).emoji }}&nbsp; {{ weather.weather[0].description }}
                             </div>
-                            <div class="hero-feels">Tunneb nagu <b>{{ Math.round(weather.main.feels_like) }}°C</b></div>
+                            <div class="hero-feels">Feels like <b>{{ Math.round(weather.main.feels_like) }}°C</b></div>
                             <div v-if="cached" class="hero-cache">📦 Andmed vahemälust</div>
                         </div>
-                        <!-- Right -->
+                        
                         <div class="hero-right">
                             <div class="hero-temp">{{ Math.round(weather.main.temp) }}<span class="hero-deg">°C</span></div>
                             <div class="hero-minmax">↑ {{ Math.round(weather.main.temp_max) }}° &nbsp;·&nbsp; ↓ {{ Math.round(weather.main.temp_min) }}°</div>
                         </div>
                     </div>
 
-                    <!-- Stats row -->
+                    
                     <div class="stats-row">
                         <div class="stat-item">
                             <div class="stat-ico">💧</div>
@@ -144,7 +144,7 @@ function windDir(deg) {
                         </div>
                     </div>
 
-                    <!-- Forecast -->
+                    
                     <div v-if="forecast.length" class="forecast-card">
                         <div class="forecast-heading">5-päeva prognoos</div>
                         <div class="forecast-row">
@@ -159,7 +159,7 @@ function windDir(deg) {
                     </div>
                 </div>
 
-                <!-- Empty -->
+                
                 <div v-else-if="!error" class="empty-card">
                     <div class="empty-icon">🌍</div>
                     <div class="empty-title">Otsi linna ilmainfot</div>
@@ -240,7 +240,7 @@ function windDir(deg) {
     font-size: 14px;
 }
 
-/* Hero */
+
 .hero-card {
     border-radius: 20px;
     padding: 32px;
@@ -265,7 +265,7 @@ function windDir(deg) {
 .hero-deg { font-size: 36px; font-weight: 400; vertical-align: top; margin-top: 8px; display: inline-block; }
 .hero-minmax { color: rgba(255,255,255,0.6); font-size: 13px; margin-top: 8px; text-align: right; }
 
-/* Stats */
+
 .stats-row {
     background: white;
     border-radius: 16px;
@@ -284,7 +284,7 @@ function windDir(deg) {
 .stat-lbl { font-size: 11px; color: #94a3b8; margin-top: 3px; }
 .stat-sep { width: 1px; height: 40px; background: #e2e8f0; flex-shrink: 0; }
 
-/* Forecast */
+
 .forecast-card {
     background: white;
     border-radius: 16px;

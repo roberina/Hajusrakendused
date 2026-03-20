@@ -4,6 +4,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\WeatherController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\BlogController;
+use App\Http\Controllers\ShopController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -43,6 +44,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/blog/{post}', [BlogController::class, 'destroy'])->name('blog.destroy');
     Route::post('/blog/{post}/comments', [BlogController::class, 'storeComment'])->name('blog.comment.store');
     Route::delete('/blog/{post}/comments/{comment}', [BlogController::class, 'destroyComment'])->name('blog.comment.destroy');
+
+    Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
+    Route::post('/shop/checkout', [ShopController::class, 'checkout'])->name('shop.checkout');
+    Route::post('/shop/confirm', [ShopController::class, 'confirm'])->name('shop.confirm');
 });
 
 require __DIR__.'/auth.php';

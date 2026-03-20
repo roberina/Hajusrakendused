@@ -57,7 +57,7 @@ function submit() {
                                 v-model="form.description"
                                 class="field-inp field-ta"
                                 placeholder="Kirjuta oma postitus siia..."
-                                rows="12"
+                                rows="14"
                                 :class="{ 'field-err': form.errors.description }"
                             ></textarea>
                             <div v-if="form.errors.description" class="err-msg">{{ form.errors.description }}</div>
@@ -78,40 +78,28 @@ function submit() {
 </template>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
-.form-wrap { background: #f1f5f9; min-height: 100vh; padding: 32px 16px; font-family: 'Inter', sans-serif; }
+.form-wrap { background: #f8fafc; min-height: 100vh; padding: 40px 16px; font-family: 'Inter', sans-serif; }
 .form-container { max-width: 720px; margin: 0 auto; }
-.back-btn { font-size: 14px; color: #64748b; text-decoration: none; font-weight: 500; }
+.back-btn { font-size: 13px; color: #64748b; text-decoration: none; font-weight: 600; transition: color 0.15s; }
 .back-btn:hover { color: #3b82f6; }
 
-.form-card { background: white; border-radius: 20px; padding: 36px; box-shadow: 0 1px 3px rgba(0,0,0,0.07); }
-.form-body { display: flex; flex-direction: column; gap: 20px; }
+.form-card { background: white; border-radius: 16px; padding: 40px; border: 1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+.form-body { display: flex; flex-direction: column; gap: 22px; }
 
 .field { display: flex; flex-direction: column; gap: 6px; }
-.field-label { font-size: 13px; font-weight: 600; color: #475569; }
-.field-inp {
-    border: 1.5px solid #e2e8f0; border-radius: 10px;
-    padding: 11px 14px; font-size: 15px; font-family: 'Inter', sans-serif;
-    color: #0f172a; outline: none; transition: border 0.15s; box-sizing: border-box; width: 100%;
-}
+.field-label { font-size: 12px; font-weight: 600; color: #475569; text-transform: uppercase; letter-spacing: 0.05em; }
+.field-inp { border: 1.5px solid #e2e8f0; border-radius: 10px; padding: 11px 14px; font-size: 15px; font-family: 'Inter', sans-serif; color: #0f172a; outline: none; transition: border 0.15s; box-sizing: border-box; width: 100%; }
 .field-inp:focus { border-color: #3b82f6; }
 .field-err { border-color: #fca5a5 !important; }
-.field-ta { resize: vertical; line-height: 1.6; }
+.field-ta { resize: vertical; line-height: 1.7; }
 .err-msg { color: #dc2626; font-size: 12px; }
 
 .form-footer { display: flex; gap: 12px; align-items: center; padding-top: 8px; }
-.submit-btn {
-    background: #3b82f6; color: white; border: none; border-radius: 10px;
-    padding: 11px 24px; font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: background 0.15s;
-}
-.submit-btn:hover:not(:disabled) { background: #2563eb; }
+.submit-btn { background: #0f172a; color: white; border: none; border-radius: 10px; padding: 11px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+.submit-btn:hover:not(:disabled) { background: #3b82f6; }
 .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-.cancel-btn {
-    text-decoration: none; color: #64748b; font-size: 14px; font-weight: 500;
-    padding: 11px 20px; border-radius: 10px; border: 1px solid #e2e8f0;
-    transition: all 0.15s;
-}
+.cancel-btn { text-decoration: none; color: #64748b; font-size: 14px; font-weight: 500; padding: 11px 20px; border-radius: 10px; border: 1px solid #e2e8f0; transition: all 0.15s; }
 .cancel-btn:hover { background: #f8fafc; }
 </style>

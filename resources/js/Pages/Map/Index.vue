@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, watch } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Head } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 import axios from 'axios';
@@ -8,10 +8,9 @@ const props = defineProps({
     markers: { type: Array, default: () => [] },
 });
 
-// State
 const markers     = ref([...props.markers]);
 const mapEl       = ref(null);
-const sidebarMode = ref('list'); // 'list' | 'add' | 'edit'
+const sidebarMode = ref('list');
 const selected    = ref(null);
 const pendingLatLng = ref(null);
 
@@ -23,36 +22,29 @@ let map = null;
 let leafletMarkers = {};
 let pendingMarkerObj = null;
 
-// Init Leaflet
 onMounted(async () => {
-    // Load Leaflet CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = 'https://unpkg.com/leaflet@1.9.4/dist/leaflet.css';
     document.head.appendChild(link);
 
-    // Load Leaflet JS
     await loadScript('https://unpkg.com/leaflet@1.9.4/dist/leaflet.js');
 
     const L = window.L;
-
-    map = L.map(mapEl.value).setView([58.5953, 25.0136], 7); // Eesti keskel
+    map = L.map(mapEl.value).setView([58.5953, 25.0136], 7);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors',
         maxZoom: 19,
     }).addTo(map);
 
-    // Add existing markers
     markers.value.forEach(m => addLeafletMarker(m));
 
-    // Click to add
     map.on('click', (e) => {
         pendingLatLng.value = e.latlng;
         form.value = { name: '', description: '' };
         sidebarMode.value = 'add';
 
-        // Show pending pin
         if (pendingMarkerObj) pendingMarkerObj.remove();
         pendingMarkerObj = L.marker([e.latlng.lat, e.latlng.lng], {
             icon: L.divIcon({
@@ -74,6 +66,14 @@ function loadScript(src) {
     });
 }
 
+function popupContent(m) {
+    return `
+        <b>${m.name}</b>
+        ${m.description ? '<br>' + m.description : ''}
+        <br><small style="color:#94a3b8; font-family:monospace;">📍 ${Number(m.latitude).toFixed(5)}, ${Number(m.longitude).toFixed(5)}</small>
+    `;
+}
+
 function addLeafletMarker(m) {
     if (!window.L || !map) return;
     const L = window.L;
@@ -85,8 +85,11 @@ function addLeafletMarker(m) {
     });
     const lm = L.marker([m.latitude, m.longitude], { icon })
         .addTo(map)
-        .bindPopup(`<b>${m.name}</b>${m.description ? '<br>' + m.description : ''}`);
-    lm.on('click', () => openEdit(m));
+        .bindPopup(popupContent(m));
+    lm.on('click', () => {
+        map.flyTo([m.latitude, m.longitude], 14, { duration: 0.8 });
+        openEdit(m);
+    });
     leafletMarkers[m.id] = lm;
 }
 
@@ -116,7 +119,6 @@ function flyTo(m) {
     leafletMarkers[m.id]?.openPopup();
 }
 
-// CRUD
 async function saveNew() {
     if (!pendingLatLng.value || !form.value.name.trim()) return;
     saving.value = true;
@@ -147,7 +149,7 @@ async function saveEdit() {
         });
         const idx = markers.value.findIndex(m => m.id === data.id);
         if (idx !== -1) markers.value[idx] = data;
-        leafletMarkers[data.id]?.setPopupContent(`<b>${data.name}</b>${data.description ? '<br>' + data.description : ''}`);
+        leafletMarkers[data.id]?.setPopupContent(popupContent(data));
         sidebarMode.value = 'list';
         selected.value = null;
     } finally {
@@ -184,7 +186,6 @@ function formatDate(dt) {
 
         <div class="map-page">
 
-            <!-- Sidebar -->
             <div class="sidebar">
 
                 <!-- List mode -->
@@ -201,16 +202,12 @@ function formatDate(dt) {
                     </div>
 
                     <div v-else class="marker-list">
-                        <div
-                            v-for="m in markers"
-                            :key="m.id"
-                            class="marker-row"
-                            @click="flyTo(m)"
-                        >
+                        <div v-for="m in markers" :key="m.id" class="marker-row" @click="flyTo(m)">
                             <div class="marker-pin">📍</div>
                             <div class="marker-info">
                                 <div class="marker-name">{{ m.name }}</div>
                                 <div class="marker-desc" v-if="m.description">{{ m.description }}</div>
+                                <div class="marker-coords">{{ Number(m.latitude).toFixed(5) }}, {{ Number(m.longitude).toFixed(5) }}</div>
                                 <div class="marker-date">{{ formatDate(m.added) }}</div>
                             </div>
                             <button class="edit-btn" @click.stop="openEdit(m)">✏️</button>
@@ -247,7 +244,7 @@ function formatDate(dt) {
                     <div class="sidebar-header">
                         <h3 class="sidebar-title">Muuda markerit</h3>
                         <p class="sidebar-hint" v-if="selected">
-                            📍 {{ selected.latitude.toFixed(5) }}, {{ selected.longitude.toFixed(5) }}
+                            📍 {{ Number(selected.latitude).toFixed(5) }}, {{ Number(selected.longitude).toFixed(5) }}
                         </p>
                     </div>
                     <div class="form-group">
@@ -271,7 +268,6 @@ function formatDate(dt) {
 
             </div>
 
-            <!-- Map -->
             <div ref="mapEl" class="map-el"></div>
 
         </div>
@@ -284,8 +280,6 @@ function formatDate(dt) {
     height: calc(100vh - 120px);
     font-family: 'Inter', sans-serif;
 }
-
-/* Sidebar */
 .sidebar {
     width: 320px;
     flex-shrink: 0;
@@ -300,13 +294,9 @@ function formatDate(dt) {
 .sidebar-title { font-size: 16px; font-weight: 700; color: #0f172a; display: flex; align-items: center; gap: 8px; margin: 0 0 4px; }
 .marker-count { background: #eff6ff; color: #3b82f6; border-radius: 20px; padding: 1px 8px; font-size: 12px; font-weight: 600; }
 .sidebar-hint { font-size: 12px; color: #94a3b8; margin: 0; }
-
-/* No markers */
 .no-markers { text-align: center; padding: 40px 20px; color: #94a3b8; font-size: 14px; }
 .no-markers-icon { font-size: 40px; margin-bottom: 12px; }
 .no-markers-sub { font-size: 12px; margin-top: 4px; }
-
-/* Marker list */
 .marker-list { display: flex; flex-direction: column; gap: 8px; }
 .marker-row {
     display: flex; align-items: flex-start; gap: 10px;
@@ -318,11 +308,10 @@ function formatDate(dt) {
 .marker-info { flex: 1; min-width: 0; }
 .marker-name { font-size: 14px; font-weight: 600; color: #0f172a; }
 .marker-desc { font-size: 12px; color: #64748b; margin-top: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.marker-date { font-size: 11px; color: #cbd5e0; margin-top: 4px; }
+.marker-coords { font-size: 11px; color: #3b82f6; margin-top: 3px; font-family: monospace; }
+.marker-date { font-size: 11px; color: #cbd5e0; margin-top: 2px; }
 .edit-btn { background: none; border: none; cursor: pointer; font-size: 16px; padding: 2px; opacity: 0.5; transition: opacity 0.15s; flex-shrink: 0; }
 .edit-btn:hover { opacity: 1; }
-
-/* Form */
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-label { font-size: 12px; font-weight: 600; color: #475569; }
 .form-inp {
@@ -336,8 +325,7 @@ function formatDate(dt) {
 .form-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
 .btn-primary {
     background: #3b82f6; color: white; border: none; border-radius: 8px;
-    padding: 10px; font-size: 14px; font-weight: 600; cursor: pointer;
-    transition: background 0.15s;
+    padding: 10px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s;
 }
 .btn-primary:hover:not(:disabled) { background: #2563eb; }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -354,7 +342,5 @@ function formatDate(dt) {
     cursor: pointer; transition: all 0.15s;
 }
 .btn-secondary:hover { background: #f1f5f9; }
-
-/* Map */
 .map-el { flex: 1; }
 </style>

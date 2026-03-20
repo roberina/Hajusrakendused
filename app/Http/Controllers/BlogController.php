@@ -9,6 +9,11 @@ use Inertia\Inertia;
 
 class BlogController extends Controller
 {
+    private function isAdmin(): bool
+    {
+        return auth()->user()->email === env('ADMIN_EMAIL');
+    }
+
     public function index()
     {
         $posts = Post::with('user')
@@ -17,7 +22,8 @@ class BlogController extends Controller
             ->get();
 
         return Inertia::render('Blog/Index', [
-            'posts' => $posts,
+            'posts'   => $posts,
+            'isAdmin' => $this->isAdmin(),
         ]);
     }
 
@@ -27,7 +33,7 @@ class BlogController extends Controller
 
         return Inertia::render('Blog/Show', [
             'post'    => $post,
-            'isAdmin' => auth()->id() === $post->user_id,
+            'isAdmin' => $this->isAdmin(),
         ]);
     }
 
@@ -54,14 +60,14 @@ class BlogController extends Controller
 
     public function edit(Post $post)
     {
-        if (auth()->id() !== $post->user_id) abort(403);
+        if (!$this->isAdmin()) abort(403);
 
         return Inertia::render('Blog/Form', ['post' => $post]);
     }
 
     public function update(Request $request, Post $post)
     {
-        if (auth()->id() !== $post->user_id) abort(403);
+        if (!$this->isAdmin()) abort(403);
 
         $data = $request->validate([
             'title'       => 'required|string|max:255',
@@ -75,7 +81,7 @@ class BlogController extends Controller
 
     public function destroy(Post $post)
     {
-        if (auth()->id() !== $post->user_id) abort(403);
+        if (!$this->isAdmin()) abort(403);
 
         $post->delete();
 
@@ -98,9 +104,7 @@ class BlogController extends Controller
 
     public function destroyComment(Post $post, Comment $comment)
     {
-        if (auth()->id() !== $comment->user_id && auth()->id() !== $post->user_id) {
-            abort(403);
-        }
+        if (!$this->isAdmin()) abort(403);
 
         $comment->delete();
 
