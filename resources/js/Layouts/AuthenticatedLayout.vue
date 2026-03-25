@@ -38,6 +38,9 @@ const showingNavigationDropdown = ref(false);
                                 <NavLink :href="route('shop.index')" :active="route().current('shop.*')">
                                     🛍️ Pood
                                 </NavLink>
+                                <NavLink :href="route('sharks.index')" :active="route().current('sharks.*')">
+                                    🦈 Haid
+                                </NavLink>
                             </div>
                         </div>
 
@@ -80,6 +83,7 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('map.index')" :active="route().current('map.index')">🗺️ Kaart</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('blog.index')" :active="route().current('blog.*')">✍️ Blogi</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('shop.index')" :active="route().current('shop.*')">🛍️ Pood</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('sharks.index')" :active="route().current('sharks.*')">🦈 Haid</ResponsiveNavLink>
                     </div>
                     <div class="pt-4 pb-1 border-t border-gray-200">
                         <div class="px-4">

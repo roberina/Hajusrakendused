@@ -5,6 +5,7 @@ use App\Http\Controllers\WeatherController;
 use App\Http\Controllers\MapController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ShopController;
+use App\Http\Controllers\SharkController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -48,6 +49,13 @@ Route::middleware('auth')->group(function () {
     Route::get('/shop', [ShopController::class, 'index'])->name('shop.index');
     Route::post('/shop/checkout', [ShopController::class, 'checkout'])->name('shop.checkout');
     Route::post('/shop/confirm', [ShopController::class, 'confirm'])->name('shop.confirm');
+
+    Route::get('/sharks', [SharkController::class, 'index'])->name('sharks.index');
+    Route::get('/sharks/create', [SharkController::class, 'create'])->name('sharks.create');
+    Route::post('/sharks', [SharkController::class, 'store'])->name('sharks.store');
+    Route::get('/sharks/{shark}/edit', [SharkController::class, 'edit'])->name('sharks.edit');
+    Route::put('/sharks/{shark}', [SharkController::class, 'update'])->name('sharks.update');
+    Route::delete('/sharks/{shark}', [SharkController::class, 'destroy'])->name('sharks.destroy');
 });
 
 require __DIR__.'/auth.php';
