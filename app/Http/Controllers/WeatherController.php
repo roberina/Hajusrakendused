@@ -14,7 +14,13 @@ class WeatherController extends Controller
 
     public function __construct()
     {
-        $this->apiKey = config('services.openweathermap.key');
+        $key = config('services.openweathermap.key');
+
+        if (empty($key)) {
+            throw new \Exception('OpenWeatherMap API key is not set in environment variables.');
+        }
+
+        $this->apiKey = $key;
     }
 
     public function index()
