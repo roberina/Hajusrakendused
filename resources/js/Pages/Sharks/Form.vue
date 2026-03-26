@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
 
@@ -10,20 +11,48 @@ const isEdit = !!props.shark;
 
 const form = useForm({
     title:        props.shark?.title        ?? '',
-    image:        props.shark?.image        ?? '',
+    image:        null,
     description:  props.shark?.description  ?? '',
     max_length:   props.shark?.max_length   ?? '',
     habitat:      props.shark?.habitat      ?? '',
     danger_level: props.shark?.danger_level ?? 'madal',
 });
 
+const preview = ref(props.shark?.image ?? null);
+const isDragging = ref(false);
+
+function onFileChange(e) {
+    const file = e.target.files[0];
+    if (file) setFile(file);
+}
+
+function onDrop(e) {
+    isDragging.value = false;
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith('image/')) setFile(file);
+}
+
+function setFile(file) {
+    form.image = file;
+    preview.value = URL.createObjectURL(file);
+}
+
+function removeImage() {
+    form.image = null;
+    preview.value = null;
+}
+
 function submit() {
     if (isEdit) {
-        form.put(route('sharks.update', props.shark.id));
+        form.transform(data => ({
+            ...data,
+            _method: 'PUT',
+        })).post(route('sharks.update', props.shark.id));
     } else {
         form.post(route('sharks.store'));
     }
 }
+
 </script>
 
 <template>
@@ -49,9 +78,25 @@ function submit() {
                             <div v-if="form.errors.title" class="err-msg">{{ form.errors.title }}</div>
                         </div>
 
+                        <!-- Image upload -->
                         <div class="field">
-                            <label class="field-label">Pildi URL</label>
-                            <input v-model="form.image" type="url" class="field-inp" placeholder="https://..." :class="{ 'field-err': form.errors.image }" />
+                            <label class="field-label">Pilt</label>
+                            <div
+                                class="drop-zone"
+                                :class="{ 'drop-zone--active': isDragging, 'drop-zone--filled': preview }"
+                                @dragover.prevent="isDragging = true"
+                                @dragleave="isDragging = false"
+                                @drop.prevent="onDrop"
+                                @click="$refs.fileInput.click()"
+                            >
+                                <img v-if="preview" :src="preview" class="drop-preview" />
+                                <div v-else class="drop-placeholder">
+                                    <div class="drop-text">Lohista pilt siia või klõpsa</div>
+                                    <div class="drop-sub">PNG, JPG, WEBP — max 5MB</div>
+                                </div>
+                                <button v-if="preview" type="button" class="remove-img" @click.stop="removeImage">✕</button>
+                            </div>
+                            <input ref="fileInput" type="file" accept="image/*" class="hidden" @change="onFileChange" />
                             <div v-if="form.errors.image" class="err-msg">{{ form.errors.image }}</div>
                         </div>
 
@@ -63,7 +108,7 @@ function submit() {
 
                         <div class="field-row">
                             <div class="field">
-                                <label class="field-label">Maksimaalne pikkus (meetrites) *</label>
+                                <label class="field-label">Maksimaalne pikkus (m) *</label>
                                 <input v-model="form.max_length" type="number" step="0.1" min="0.1" max="30" class="field-inp" placeholder="nt 6.5" :class="{ 'field-err': form.errors.max_length }" />
                                 <div v-if="form.errors.max_length" class="err-msg">{{ form.errors.max_length }}</div>
                             </div>
@@ -117,6 +162,39 @@ function submit() {
 .field-err { border-color: #fca5a5 !important; }
 .field-ta { resize: vertical; line-height: 1.6; }
 .err-msg { color: #dc2626; font-size: 12px; }
+.hidden { display: none; }
+
+/* Drop zone */
+.drop-zone {
+    border: 2px dashed #bae6fd;
+    border-radius: 12px;
+    padding: 32px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    background: #f0f9ff;
+    min-height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.drop-zone:hover { border-color: #0284c7; background: #e0f2fe; }
+.drop-zone--active { border-color: #0284c7; background: #e0f2fe; transform: scale(1.01); }
+.drop-zone--filled { padding: 0; border-style: solid; border-color: #7dd3fc; }
+.drop-placeholder { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.drop-icon { font-size: 36px; }
+.drop-text { font-size: 14px; font-weight: 600; color: #0284c7; }
+.drop-sub { font-size: 12px; color: #94a3b8; }
+.drop-preview { width: 100%; height: 220px; object-fit: cover; border-radius: 10px; display: block; }
+.remove-img {
+    position: absolute; top: 8px; right: 8px;
+    background: rgba(0,0,0,0.5); color: white; border: none;
+    border-radius: 50%; width: 28px; height: 28px; cursor: pointer;
+    font-size: 13px; display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s;
+}
+.remove-img:hover { background: rgba(0,0,0,0.8); }
 
 .form-footer { display: flex; gap: 12px; align-items: center; padding-top: 8px; }
 .submit-btn { background: #0284c7; color: white; border: none; border-radius: 10px; padding: 11px 24px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.15s; }
