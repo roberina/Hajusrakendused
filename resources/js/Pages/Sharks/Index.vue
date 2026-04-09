@@ -1,35 +1,35 @@
 <script setup>
-import { ref, computed, onMounted } from 'vue';
-import { Head, Link, useForm, usePage } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import { Head, Link, useForm, router } from '@inertiajs/vue3';
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import axios from 'axios';
 
-const sharks = ref([]);
-const loading = ref(true);
-const search = ref('');
-const habitat = ref('');
+const props = defineProps({
+    sharks:  { type: Array, default: () => [] },
+});
+
+const search      = ref('');
+const habitat     = ref('');
 const dangerLevel = ref('');
-const sort = ref('created_at');
-const order = ref('desc');
+const sort        = ref('created_at');
+const order       = ref('desc');
 
-const page = usePage();
+const filtered = computed(() => {
+    let result = [...props.sharks];
+    if (search.value)      result = result.filter(s => s.title.toLowerCase().includes(search.value.toLowerCase()));
+    if (habitat.value)     result = result.filter(s => s.habitat.toLowerCase().includes(habitat.value.toLowerCase()));
+    if (dangerLevel.value) result = result.filter(s => s.danger_level === dangerLevel.value);
 
-async function fetchSharks() {
-    loading.value = true;
-    const params = new URLSearchParams();
-    if (search.value)      params.set('search', search.value);
-    if (habitat.value)     params.set('habitat', habitat.value);
-    if (dangerLevel.value) params.set('danger_level', dangerLevel.value);
-    params.set('sort', sort.value);
-    params.set('order', order.value);
-    params.set('limit', '100');
+    result.sort((a, b) => {
+        let valA = a[sort.value], valB = b[sort.value];
+        if (typeof valA === 'string') valA = valA.toLowerCase();
+        if (typeof valB === 'string') valB = valB.toLowerCase();
+        if (valA < valB) return order.value === 'asc' ? -1 : 1;
+        if (valA > valB) return order.value === 'asc' ? 1 : -1;
+        return 0;
+    });
 
-    const { data } = await axios.get(`/api/sharks?${params}`);
-    sharks.value = data.data;
-    loading.value = false;
-}
-
-onMounted(fetchSharks);
+    return result;
+});
 
 function dangerColor(level) {
     return { madal: '#22c55e', keskmine: '#f59e0b', kõrge: '#ef4444' }[level] ?? '#94a3b8';
@@ -40,9 +40,7 @@ function dangerEmoji(level) {
 
 function deleteShark(id) {
     if (!confirm('Kustuta hai?')) return;
-    useForm({}).delete(route('sharks.destroy', id), {
-        onSuccess: fetchSharks,
-    });
+    useForm({}).delete(route('sharks.destroy', id));
 }
 </script>
 
@@ -62,32 +60,29 @@ function deleteShark(id) {
                 <!-- Filters -->
                 <div class="filters-card">
                     <div class="filters-row">
-                        <input v-model="search" @input="fetchSharks" type="text" placeholder="🔍 Otsi hainime..." class="filter-inp" />
-                        <input v-model="habitat" @input="fetchSharks" type="text" placeholder="🌊 Elupaik..." class="filter-inp" />
-                        <select v-model="dangerLevel" @change="fetchSharks" class="filter-inp">
+                        <input v-model="search" type="text" placeholder="🔍 Otsi hainime..." class="filter-inp" />
+                        <input v-model="habitat" type="text" placeholder="🌊 Elupaik..." class="filter-inp" />
+                        <select v-model="dangerLevel" class="filter-inp">
                             <option value="">Kõik ohtlikkused</option>
                             <option value="madal">🟢 Madal</option>
                             <option value="keskmine">🟡 Keskmine</option>
                             <option value="kõrge">🔴 Kõrge</option>
                         </select>
-                        <select v-model="sort" @change="fetchSharks" class="filter-inp">
+                        <select v-model="sort" class="filter-inp">
                             <option value="created_at">Lisamise aeg</option>
                             <option value="title">Nimi</option>
                             <option value="max_length">Pikkus</option>
                         </select>
-                        <select v-model="order" @change="fetchSharks" class="filter-inp">
+                        <select v-model="order" class="filter-inp">
                             <option value="desc">Kahanevalt</option>
                             <option value="asc">Kasvavalt</option>
                         </select>
                     </div>
-                    <div class="results-count">{{ sharks.length }} haid leitud</div>
+                    <div class="results-count">{{ filtered.length }} haid leitud</div>
                 </div>
 
-                <!-- Loading -->
-                <div v-if="loading" class="loading">🦈 Laen...</div>
-
                 <!-- Empty -->
-                <div v-else-if="sharks.length === 0" class="empty-state">
+                <div v-if="filtered.length === 0" class="empty-state">
                     <div style="font-size:56px;">🦈</div>
                     <div class="empty-title">Haisid ei leitud</div>
                     <Link :href="route('sharks.create')" class="create-btn" style="margin-top:16px; display:inline-block;">+ Lisa esimene hai</Link>
@@ -95,7 +90,7 @@ function deleteShark(id) {
 
                 <!-- Grid -->
                 <div v-else class="sharks-grid">
-                    <div v-for="shark in sharks" :key="shark.id" class="shark-card">
+                    <div v-for="shark in filtered" :key="shark.id" class="shark-card">
                         <div class="shark-img-wrap">
                             <img v-if="shark.image" :src="shark.image" :alt="shark.title" class="shark-img" />
                             <div v-else class="shark-img-placeholder">🦈</div>
@@ -141,7 +136,6 @@ function deleteShark(id) {
 .filter-inp:focus { border-color: #0284c7; }
 .results-count { font-size: 12px; color: #94a3b8; }
 
-.loading { text-align: center; padding: 64px; font-size: 18px; color: #64748b; }
 .empty-state { text-align: center; background: white; border-radius: 16px; padding: 64px 32px; border: 1px solid #e0f2fe; }
 .empty-title { font-size: 20px; font-weight: 700; color: #0f172a; margin-top: 12px; }
 

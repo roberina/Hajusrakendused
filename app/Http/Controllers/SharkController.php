@@ -12,7 +12,9 @@ class SharkController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Sharks/Index');
+        return Inertia::render('Sharks/Index', [
+            'sharks' => Shark::with('user:id,name')->latest()->get(),
+        ]);
     }
 
     public function create()
@@ -24,7 +26,7 @@ class SharkController extends Controller
     {
         $data = $request->validate([
             'title'        => 'required|string|max:255',
-            'image'        => 'nullable|image|max:5120', // max 5MB
+            'image'        => 'nullable|image|max:5120',
             'description'  => 'required|string',
             'max_length'   => 'required|numeric|min:0.1|max:30',
             'habitat'      => 'required|string|max:255',
@@ -61,7 +63,6 @@ class SharkController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Kustuta vana pilt
             if ($shark->image && str_starts_with($shark->image, '/storage/')) {
                 Storage::disk('public')->delete(str_replace('/storage/', '', $shark->image));
             }

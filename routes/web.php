@@ -6,6 +6,7 @@ use App\Http\Controllers\MapController;
 use App\Http\Controllers\BlogController;
 use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SharkController;
+use App\Http\Controllers\ApiKeyController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -56,6 +57,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/sharks/{shark}/edit', [SharkController::class, 'edit'])->name('sharks.edit');
     Route::put('/sharks/{shark}', [SharkController::class, 'update'])->name('sharks.update');
     Route::delete('/sharks/{shark}', [SharkController::class, 'destroy'])->name('sharks.destroy');
+
+    Route::get('/api-keys', [ApiKeyController::class, 'index'])->name('api-keys.index');
+    Route::post('/api-keys', [ApiKeyController::class, 'store'])->name('api-keys.store');
+    Route::delete('/api-keys/{apiKey}', [ApiKeyController::class, 'destroy'])->name('api-keys.destroy');
 });
 
 require __DIR__.'/auth.php';
