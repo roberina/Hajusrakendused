@@ -23,27 +23,14 @@ const showingNavigationDropdown = ref(false);
                                 </Link>
                             </div>
                             <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">
-                                    Dashboard
-                                </NavLink>
-                                <NavLink :href="route('weather.index')" :active="route().current('weather.index')">
-                                    🌤️ Ilm
-                                </NavLink>
-                                <NavLink :href="route('map.index')" :active="route().current('map.index')">
-                                    🗺️ Kaart
-                                </NavLink>
-                                <NavLink :href="route('blog.index')" :active="route().current('blog.*')">
-                                    ✍️ Blogi
-                                </NavLink>
-                                <NavLink :href="route('shop.index')" :active="route().current('shop.*')">
-                                    🛍️ Pood
-                                </NavLink>
-                                <NavLink :href="route('sharks.index')" :active="route().current('sharks.*')">
-                                    🦈 Haid
-                                </NavLink>
-                                <NavLink :href="route('api-keys.index')" :active="route().current('api-keys.*')">
-                                    🔑 API
-                                </NavLink>
+                                <NavLink :href="route('dashboard')" :active="route().current('dashboard')">Dashboard</NavLink>
+                                <NavLink :href="route('weather.index')" :active="route().current('weather.index')">🌤️ Ilm</NavLink>
+                                <NavLink :href="route('map.index')" :active="route().current('map.index')">🗺️ Kaart</NavLink>
+                                <NavLink :href="route('blog.index')" :active="route().current('blog.*')">✍️ Blogi</NavLink>
+                                <NavLink :href="route('shop.index')" :active="route().current('shop.*')">🛍️ Pood</NavLink>
+                                <NavLink :href="route('sharks.index')" :active="route().current('sharks.*')">🦈 Haid</NavLink>
+                                <NavLink :href="route('vw.index')" :active="route().current('vw.*')">🚗 VW</NavLink>
+                                <NavLink :href="route('api-keys.index')" :active="route().current('api-keys.*')">🔑 API</NavLink>
                             </div>
                         </div>
 
@@ -87,6 +74,7 @@ const showingNavigationDropdown = ref(false);
                         <ResponsiveNavLink :href="route('blog.index')" :active="route().current('blog.*')">✍️ Blogi</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('shop.index')" :active="route().current('shop.*')">🛍️ Pood</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('sharks.index')" :active="route().current('sharks.*')">🦈 Haid</ResponsiveNavLink>
+                        <ResponsiveNavLink :href="route('vw.index')" :active="route().current('vw.*')">🚗 VW</ResponsiveNavLink>
                         <ResponsiveNavLink :href="route('api-keys.index')" :active="route().current('api-keys.*')">🔑 API</ResponsiveNavLink>
                     </div>
                     <div class="pt-4 pb-1 border-t border-gray-200">

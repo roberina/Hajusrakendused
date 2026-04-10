@@ -8,6 +8,7 @@ use App\Http\Controllers\ShopController;
 use App\Http\Controllers\SharkController;
 use App\Http\Controllers\ApiKeyController;
 use Illuminate\Foundation\Application;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -61,6 +62,23 @@ Route::middleware('auth')->group(function () {
     Route::get('/api-keys', [ApiKeyController::class, 'index'])->name('api-keys.index');
     Route::post('/api-keys', [ApiKeyController::class, 'store'])->name('api-keys.store');
     Route::delete('/api-keys/{apiKey}', [ApiKeyController::class, 'destroy'])->name('api-keys.destroy');
+
+    // Ken-Martti VW API proxy
+    Route::get('/external/vw', function () {
+        $response = Http::timeout(10)->get(
+            'https://vue-app-main-uzwcfs.free.laravel.cloud/api/volkswagens',
+            array_merge(
+                request()->only(['search', 'model', 'year', 'sort', 'order', 'limit']),
+                ['api_key' => 'vw_zZKGcoq6KRHxwP5dX5d3qk8z6Uq21OD7yK26Hr25']
+            )
+        );
+        return $response->json();
+    })->name('external.vw');
+
+    // Ken-Martti VW leht
+    Route::get('/vw', function () {
+        return Inertia::render('VW/Index');
+    })->name('vw.index');
 });
 
 require __DIR__.'/auth.php';
