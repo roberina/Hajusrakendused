@@ -23,13 +23,16 @@ class WeatherController extends Controller
         $this->apiKey = $key;
     }
 
-    public function index()
+    public function index(Request $request)
     {
+        $resultKey = 'weather_result_' . $request->session()->getId();
+        $result = Cache::pull($resultKey);
+
         return Inertia::render('Weather/Index', [
-            'weather'  => session('weather'),
-            'forecast' => session('forecast', []),
+            'weather'  => $result['weather']  ?? null,
+            'forecast' => $result['forecast'] ?? [],
             'error'    => session('error'),
-            'cached'   => session('cached', false),
+            'cached'   => $result['cached']   ?? false,
         ]);
     }
 
@@ -59,7 +62,8 @@ class WeatherController extends Controller
 
         if (!$data || (isset($data['cod']) && $data['cod'] != 200)) {
             Cache::forget($cacheKey);
-            return redirect()->route('weather.index')->with('error', 'Linna "' . $city . '" ei leitud. Kontrolli kirjaviisi.');
+            return redirect()->route('weather.index')
+                ->with('error', 'Linna "' . $city . '" ei leitud. Kontrolli kirjaviisi.');
         }
 
         $forecastKey = 'forecast_' . strtolower(str_replace(' ', '_', $city));
@@ -92,9 +96,13 @@ class WeatherController extends Controller
             $dailyForecast = array_values(array_slice($dailyForecast, 0, 5));
         }
 
-        return redirect()->route('weather.index')
-            ->with('weather', $data)
-            ->with('forecast', $dailyForecast)
-            ->with('cached', Cache::has($cacheKey));
+        $resultKey = 'weather_result_' . $request->session()->getId();
+        Cache::put($resultKey, [
+            'weather'  => $data,
+            'forecast' => $dailyForecast,
+            'cached'   => Cache::has($cacheKey),
+        ], now()->addMinutes(5));
+
+        return redirect()->route('weather.index');
     }
 }

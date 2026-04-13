@@ -45,7 +45,7 @@ function formatMileage(m) {
     <Head title="VW Autod" />
     <AuthenticatedLayout>
         <template #header>
-            <h2 class="font-semibold text-xl text-gray-800 leading-tight">🚗 Ken-Martti Volkswagen'd</h2>
+            <h2 class="font-semibold text-xl text-gray-800 leading-tight">🚗 Ken-Martti Volkswagenid</h2>
         </template>
 
         <div class="vw-wrap">
